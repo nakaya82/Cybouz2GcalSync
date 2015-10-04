@@ -36,18 +36,7 @@ def getCybouzSchedule():
 
 def createIcsFile(response):
     ofs = open('schedule.ics', 'w', encoding='utf-8')
-    num = 0
-    while True:
-        line = response.readline().decode('utf-8')
-        if not line:
-            break
-        ofs.write(line)
-        num += 1
-        if num == 2:
-            with open('./timezone.ics', encoding='utf-8') as f:
-                lines = f.readlines()
-                for line in lines:
-                    ofs.write(line)
+    ofs.write(response.readline().decode('utf-8'))
     ofs.close()
 
 
