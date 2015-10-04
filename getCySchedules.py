@@ -7,8 +7,6 @@ from urllib.error import URLError
 
 
 def getCybouzSchedule():
-    conf = configparser.ConfigParser()
-    conf.read('chschesync.cfg')
     account = conf['cybouz']['account']
     password = conf['cybouz']['password']
     url = conf['cybouz']['url']
@@ -37,11 +35,14 @@ def getCybouzSchedule():
 
 
 def createIcsFile(response):
-    with open('schedule.ics', 'w', encoding='utf-8') as ofs:
-        ofs.write(response.readline().decode('utf-8'))
+    ical_file = conf['cybouz']['ical_file']
+    with open(ical_file, 'w', encoding='utf-8') as ofs:
+        ofs.write(response.read().decode('utf-8'))
         ofs.close()
 
 
 if __name__ == "__main__":
+    conf = configparser.ConfigParser()
+    conf.read('cyschesync.cfg')
     with getCybouzSchedule() as request:
         createIcsFile(request)
