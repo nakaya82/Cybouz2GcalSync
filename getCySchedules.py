@@ -3,6 +3,7 @@
 import urllib.parse
 import urllib.request
 import configparser
+from urllib.error import URLError
 
 
 def getCybouzSchedule():
@@ -27,19 +28,20 @@ def getCybouzSchedule():
                /537.36 (KHTML, like Gecko)\ Chrome/45.0.2454.99 Safari/537.36"}
 
     request = urllib.request.Request(url, data, headers)
-    return urllib.request.urlopen(request)
-
-    # print(response.geturl())
-    # print(response.info())
-    # print(response.status)
+    try:
+        return urllib.request.urlopen(request)
+    except URLError as e:
+        if hasattr(e, 'reason'):
+            print('We failed to reach a server.')
+            print('Reason: ', e.reason)
 
 
 def createIcsFile(response):
-    ofs = open('schedule.ics', 'w', encoding='utf-8')
-    ofs.write(response.readline().decode('utf-8'))
-    ofs.close()
+    with open('schedule.ics', 'w', encoding='utf-8') as ofs:
+        ofs.write(response.readline().decode('utf-8'))
+        ofs.close()
 
 
 if __name__ == "__main__":
-    request = getCybouzSchedule()
-    createIcsFile(request)
+    with getCybouzSchedule() as request:
+        createIcsFile(request)
