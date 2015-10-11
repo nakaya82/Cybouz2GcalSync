@@ -33,3 +33,5 @@ def createIcsFile(response, ical_file):
     with open(ical_file, 'w', encoding='utf-8') as ofs:
         ofs.write(response.read().decode('utf-8'))
         ofs.close()
+        return True
+    return False

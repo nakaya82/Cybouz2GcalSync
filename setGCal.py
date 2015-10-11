@@ -64,12 +64,14 @@ def readIcalFile(ical_file):
 
 
 def insertEventList2Gcal(service, events, color_id):
+    status = False
     # Eventリストが空の場合は何もしない
     if service is None or events is None or len(events) <= 0:
         print('insertするEventはありません')
         return
 
     for event in events:
+
         body = {
             'summary': event['title'],
             'location': event['place'],
@@ -85,12 +87,16 @@ def insertEventList2Gcal(service, events, color_id):
             "colorId": color_id,
         }
         if event['rrule']:
-            body['recurrence'] = event['rrule']
+            body['recurrence'] = event['rrule'].to_ical().decode('utf-8')
 
-        print(body)
+        # print(body)
+
         event = service.events().insert(
             calendarId='primary', body=body).execute()
-        print('Event created: %s' % (event.get('htmlLink')))
+        if event is not None:
+            status = True
+        # print('Event created: %s' % (event.get('htmlLink')))
+    return status
 
 
 def deleteEvents2Gcal(service, color_id):
@@ -105,11 +111,11 @@ def deleteEvents2Gcal(service, color_id):
         if 'colorId' in event and color_id == event['colorId']:
             events.append(event)
     if events is None or len(events) <= 0:
-        print('消したいeventはないですよ')
+        print('消したいeventはありません')
         return
     else:
-        print('消したいeventはこれですよ')
-        print(events)
-        return
+        print('eventを消去します')
+        # print(events)
     for event in events:
-        service.events().delete('primary', event['id']).execute()
+        service.events().delete(
+            calendarId='primary', eventId=event['id']).execute()
