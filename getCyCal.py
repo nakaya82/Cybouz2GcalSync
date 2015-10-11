@@ -2,15 +2,10 @@
 # -*- coding: utf-8 -*-
 import urllib.parse
 import urllib.request
-import configparser
 from urllib.error import URLError
 
 
-def getCybouzSchedule():
-    account = conf['cybouz']['account']
-    password = conf['cybouz']['password']
-    url = conf['cybouz']['url']
-
+def getCybouzSchedule(account, password, url):
     form = {'_account': account,
             '_password': password,
             '_system': '1'}
@@ -34,15 +29,7 @@ def getCybouzSchedule():
             print('Reason: ', e.reason)
 
 
-def createIcsFile(response):
-    ical_file = conf['cybouz']['ical_file']
+def createIcsFile(response, ical_file):
     with open(ical_file, 'w', encoding='utf-8') as ofs:
         ofs.write(response.read().decode('utf-8'))
         ofs.close()
-
-
-if __name__ == "__main__":
-    conf = configparser.ConfigParser()
-    conf.read('cyschesync.cfg')
-    with getCybouzSchedule() as request:
-        createIcsFile(request)
