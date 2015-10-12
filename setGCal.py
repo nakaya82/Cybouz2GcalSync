@@ -48,9 +48,9 @@ def readIcalFile(ical_file):
 
     for e in cal.walk():
         if e.name == 'VEVENT':
-            tstr = "2015-09-27 09:00:00"
             start_str = e.decoded("dtstart").strftime('%Y-%m-%d %H:%M:%S')
-            start_dt = datetime.datetime.strptime(start_str, '%Y-%m-%d %H:%M:%S')
+            start_dt = datetime.datetime.strptime(
+                start_str, '%Y-%m-%d %H:%M:%S')
             now = datetime.datetime.utcnow()
             if (now > start_dt):
                 continue
