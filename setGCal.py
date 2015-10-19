@@ -48,11 +48,12 @@ def readIcalFile(ical_file):
 
     for e in cal.walk():
         if e.name == 'VEVENT':
-            start_str = e.decoded("dtstart").strftime('%Y-%m-%d %H:%M:%S')
-            start_dt = datetime.datetime.strptime(
-                start_str, '%Y-%m-%d %H:%M:%S')
+            end_str = e.decoded("dtend").strftime('%Y-%m-%d %H:%M:%S')
+            end_dt = datetime.datetime.strptime(
+                end_str, '%Y-%m-%d %H:%M:%S')
             now = datetime.datetime.utcnow()
-            if (now > start_dt):
+            now = now + datetime.timedelta(hours=9)
+            if (now > end_dt):
                 continue
             dict_schedule = {
                 "title": e.decoded("summary").decode('utf-8') if
@@ -110,8 +111,10 @@ def deleteEvents2Gcal(service, color_id):
         return
     now = datetime.datetime.utcnow().isoformat() + 'Z'  # 'Z'indicates UTC time
     eventsResult = service.events().list(
-        calendarId='primary', timeMin=now).execute()
+        calendarId='primary', timeMin=now,
+        singleEvents=True, orderBy='startTime').execute()
     all_events = eventsResult.get('items', [])
+
     events = []
     for event in all_events:
         if 'colorId' in event and color_id == event['colorId']:
