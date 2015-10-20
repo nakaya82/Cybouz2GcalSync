@@ -21,12 +21,12 @@ def get_credentials(scopes, secert_file, appname):
     if not os.path.exists(credential_dir):
         os.makedirs(credential_dir)
     credential_path = os.path.join(credential_dir,
-                                   'calendar-python-quickstart.json')
+                                   'cybouz2gcalsync.json')
 
     store = oauth2client.file.Storage(credential_path)
     credentials = store.get()
     if not credentials or credentials.invalid:
-        flow = client.flow_from_clientsecrets(secert_file, appname)
+        flow = client.flow_from_clientsecrets(secert_file, scopes)
         flow.user_agent = appname
         credentials = tools.run_flow(flow, store, flags)
     return credentials
