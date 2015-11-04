@@ -8,6 +8,15 @@ import sys
 
 import httplib2
 from apiclient import discovery
+from datetime import date as dt
+
+
+def verify(status):
+    if not status:
+        print("Cybouzよりスケジュールの取り出しに失敗しました")
+        sys.exit()
+    else:
+        print("Cybouzよりスケジュールの取り出しに成功しました")
 
 
 if __name__ == "__main__":
@@ -19,16 +28,22 @@ if __name__ == "__main__":
     account = conf['cybouz']['account']
     password = conf['cybouz']['password']
     url = conf['cybouz']['url']
-    ical_file = conf['cybouz']['ical_file']
+    today = dt.today()
+    ical = conf['cybouz']['ical_file']
+    thisMical = ical + "_" + today.strftime('%Y%m')
+    nextMon = dt(today.year + (today.month == 12), today.month % 12 + 1, 1)
+    nextMical = ical + "_" + nextMon.strftime('%Y%m')
 
-    with getCyCal.getCybouzSchedule(account, password, url) as request:
-        status = getCyCal.createIcsFile(request, ical_file)
-
-    if not status:
-        print("Cybouzよりスケジュールの取り出しに失敗しました")
-        sys.exit()
-    else:
-        print("Cybouzよりスケジュールの取り出しに成功しました")
+    # 今月のデータをCybouzからエクスポート
+    with getCyCal.getCybouzSchedule(
+            account, password, url, today.strftime('%Y-%m-01')) as request:
+        status = getCyCal.createIcsFile(request, thisMical)
+        verify(status)
+    # 来月のデータをCybouzからエクスポート
+    with getCyCal.getCybouzSchedule(
+            account, password, url, nextMon.strftime('%Y-%m-01')) as request:
+        status = getCyCal.createIcsFile(request, nextMical)
+        verify(status)
 
     scopes = conf['google_api']['scopes']
     scert_file = conf['google_api']['client_secert_file']
@@ -40,10 +55,15 @@ if __name__ == "__main__":
 
     # 該当colorのEventを削除
     color_id = conf['google_api']['colorId']
-    ical_file = conf['cybouz']['ical_file']
 
     setGCal.deleteEvents2Gcal(service, color_id)
-    events = setGCal.readIcalFile(ical_file)
+    events = []
+    # 今月のデータをGoogleCalendarにインポート
+    events = setGCal.readIcalFile(events, thisMical, nextMon)
+    # 来月月のデータをGoogleCalendarにインポート
+    events = setGCal.readIcalFile(
+        events, nextMical, dt(
+            nextMon.year + (nextMon.month == 12), nextMon.month % 12 + 1, 1))
     status = setGCal.insertEventList2Gcal(service, events, color_id)
     if status:
         print("Googleカレンダーに予定をインポートしました")

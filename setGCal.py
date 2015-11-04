@@ -8,7 +8,7 @@ import oauth2client
 from oauth2client import client
 from oauth2client import tools
 
-import datetime
+from datetime import date as dt
 import icalendar
 
 import argparse
@@ -33,9 +33,7 @@ def get_credentials(scopes, secert_file, appname):
 
 
 # read Event from ics file
-def readIcalFile(ical_file):
-    events = []
-
+def readIcalFile(events, ical_file, fin_dt):
     try:
         with open(ical_file, "r") as fh:
             ical_str = fh.read()
@@ -48,12 +46,10 @@ def readIcalFile(ical_file):
 
     for e in cal.walk():
         if e.name == 'VEVENT':
-            end_str = e.decoded("dtend").strftime('%Y-%m-%d %H:%M:%S')
-            end_dt = datetime.datetime.strptime(
-                end_str, '%Y-%m-%d %H:%M:%S')
-            now = datetime.datetime.utcnow()
-            now = now + datetime.timedelta(hours=9)
-            if (now > end_dt):
+            end = e.decoded("dtend").strftime('%Y,%m,%d').split(',')
+            dtend = dt(int(end[0]), int(end[1]), int(end[2]))
+            today = dt.today()
+            if (today >= dtend and dtend > fin_dt):
                 continue
             dict_schedule = {
                 "title": e.decoded("summary").decode('utf-8') if
@@ -109,7 +105,7 @@ def insertEventList2Gcal(service, events, color_id):
 def deleteEvents2Gcal(service, color_id):
     if service is None:
         return
-    now = datetime.datetime.utcnow().isoformat() + 'Z'  # 'Z'indicates UTC time
+    now = dt.today().strftime('%Y-%m-%d') + 'T00:00:00Z'
     eventsResult = service.events().list(
         calendarId='primary', timeMin=now,
         singleEvents=True, orderBy='startTime').execute()

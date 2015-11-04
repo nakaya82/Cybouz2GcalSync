@@ -5,9 +5,10 @@ import urllib.request
 from urllib.error import URLError
 
 
-def getCybouzSchedule(account, password, url):
+def getCybouzSchedule(account, password, url, bdate):
     form = {'_account': account,
             '_password': password,
+            'bdate': bdate,
             '_system': '1'}
     data = urllib.parse.urlencode(form).encode('utf-8')
 
@@ -27,6 +28,7 @@ def getCybouzSchedule(account, password, url):
         if hasattr(e, 'reason'):
             print('We failed to reach a server.')
             print('Reason: ', e.reason)
+        return False
 
 
 def createIcsFile(response, ical_file):
