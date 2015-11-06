@@ -33,7 +33,7 @@ def get_credentials(scopes, secert_file, appname):
 
 
 # read Event from ics file
-def readIcalFile(events, ical_file, fin_dt):
+def readIcalFile(events, ical_file, start_dt, end_dt):
     try:
         with open(ical_file, "r") as fh:
             ical_str = fh.read()
@@ -48,21 +48,19 @@ def readIcalFile(events, ical_file, fin_dt):
         if e.name == 'VEVENT':
             end = e.decoded("dtend").strftime('%Y,%m,%d').split(',')
             dtend = dt(int(end[0]), int(end[1]), int(end[2]))
-            today = dt.today()
-            if (today >= dtend and dtend > fin_dt):
-                continue
-            dict_schedule = {
-                "title": e.decoded("summary").decode('utf-8') if
-                e.get("summary") else "",
-                "place": e.decoded("location").decode('utf-8') if
-                e.get("location") else "",
-                "desc": e.decoded("description").decode('utf-8') if
-                e.get("description") else "",
-                "rrule": e.decoded("rrule") if e.get("rrule") else "",
-                "start": e.decoded("dtstart"),
-                "end": e.decoded("dtend"),
-            }
-            events.append(dict_schedule)
+            if (start_dt <= dtend and dtend < end_dt):
+                dict_schedule = {
+                    "title": e.decoded("summary").decode('utf-8') if
+                    e.get("summary") else "",
+                    "place": e.decoded("location").decode('utf-8') if
+                    e.get("location") else "",
+                    "desc": e.decoded("description").decode('utf-8') if
+                    e.get("description") else "",
+                    "rrule": e.decoded("rrule") if e.get("rrule") else "",
+                    "start": e.decoded("dtstart"),
+                    "end": e.decoded("dtend"),
+                }
+                events.append(dict_schedule)
     return events
 
 

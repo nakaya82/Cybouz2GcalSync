@@ -59,10 +59,10 @@ if __name__ == "__main__":
     setGCal.deleteEvents2Gcal(service, color_id)
     events = []
     # 今月のデータをGoogleCalendarにインポート
-    events = setGCal.readIcalFile(events, thisMical, nextMon)
+    events = setGCal.readIcalFile(events, thisMical, today, nextMon)
     # 来月月のデータをGoogleCalendarにインポート
     events = setGCal.readIcalFile(
-        events, nextMical, dt(
+        events, nextMical, nextMon, dt(
             nextMon.year + (nextMon.month == 12), nextMon.month % 12 + 1, 1))
     status = setGCal.insertEventList2Gcal(service, events, color_id)
     if status:
