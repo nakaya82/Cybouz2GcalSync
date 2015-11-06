@@ -46,9 +46,11 @@ def readIcalFile(events, ical_file, start_dt, end_dt):
 
     for e in cal.walk():
         if e.name == 'VEVENT':
+            start = e.decoded("dtstart").strftime('%Y,%m,%d').split(',')
+            dtstart = dt(int(start[0]), int(start[1]), int(start[2]))
             end = e.decoded("dtend").strftime('%Y,%m,%d').split(',')
             dtend = dt(int(end[0]), int(end[1]), int(end[2]))
-            if (start_dt <= dtend and dtend < end_dt):
+            if (start_dt <= dtstart and start_dt <= dtend and dtend < end_dt):
                 dict_schedule = {
                     "title": e.decoded("summary").decode('utf-8') if
                     e.get("summary") else "",
