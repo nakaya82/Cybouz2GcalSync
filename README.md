@@ -20,7 +20,7 @@ crontabに以下を設定するなどし、定期的に同期させます。
 
 ## Install ##
     $ cd ~
-    $ git clone https://nakaya82@bitbucket.org/nakaya82/cybouz2gcalsync.git
+    $ git clone https://github.com/nakaya82/Cybouz2GcalSync.git
     $ cd cybouz2gcalsync
     $ pip install -r requirements.txt
     $ vi cyschesync.cfg
